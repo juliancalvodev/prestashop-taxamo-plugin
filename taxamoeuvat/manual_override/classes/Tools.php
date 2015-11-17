@@ -535,7 +535,7 @@ class Tools extends ToolsCore
 
 				if ($merchants_self_settings['allow_sms_verification'])
 				{
-					$verification_token = TaxamoCCPrefix::getTokenByCustomer($cart->id_customer);
+					$verification_token = Taxamoeuvat::getTokenByCustomer($cart->id_customer);
 
 					if ($verification_token)
 					{
@@ -548,9 +548,9 @@ class Tools extends ToolsCore
 						}
 						else
 						{
-							$iso_country_residence = TaxamoCCPrefix::getCountryByCustomer($cart->id_customer);
-							$cc_prefix = TaxamoCCPrefix::getPrefixByCustomer($cart->id_customer);
-							TaxamoCCPrefix::updateCCPrefix($cart->id_customer, $iso_country_residence, $cc_prefix, null);
+							$iso_country_residence = Taxamoeuvat::getCountryByCustomer($cart->id_customer);
+							$cc_prefix = Taxamoeuvat::getPrefixByCustomer($cart->id_customer);
+							Taxamoeuvat::updateCCPrefix($cart->id_customer, $iso_country_residence, $cc_prefix, null);
 						}
 					}
 				}
@@ -580,14 +580,14 @@ class Tools extends ToolsCore
 				{
 					$errors = array();
 
-					$buyer_credit_card_prefix = TaxamoCCPrefix::getPrefixByCustomer($cart->id_customer);
+					$buyer_credit_card_prefix = Taxamoeuvat::getPrefixByCustomer($cart->id_customer);
 
 					if (is_null($buyer_credit_card_prefix) || empty($buyer_credit_card_prefix))
 						$no_buyer_credit_card_prefix = true;
 					else
 						$params_tax_calculate['buyer_credit_card_prefix'] = $buyer_credit_card_prefix;
 
-					$force_country_code = TaxamoCCPrefix::getCountryByCustomer($cart->id_customer);
+					$force_country_code = Taxamoeuvat::getCountryByCustomer($cart->id_customer);
 
 					if (is_null($force_country_code) || empty($force_country_code))
 						$no_force_country_code = true;
@@ -821,7 +821,7 @@ class Tools extends ToolsCore
 
 				if ($merchants_self_settings['allow_sms_verification'])
 				{
-					$verification_token = TaxamoCCPrefix::getTokenByCustomer($id_customer);
+					$verification_token = Taxamoeuvat::getTokenByCustomer($id_customer);
 
 					if ($verification_token)
 					{
@@ -834,9 +834,9 @@ class Tools extends ToolsCore
 						}
 						else
 						{
-							$iso_country_residence = TaxamoCCPrefix::getCountryByCustomer($id_customer);
-							$cc_prefix = TaxamoCCPrefix::getPrefixByCustomer($id_customer);
-							TaxamoCCPrefix::updateCCPrefix($id_customer, $iso_country_residence, $cc_prefix, null);
+							$iso_country_residence = Taxamoeuvat::getCountryByCustomer($id_customer);
+							$cc_prefix = Taxamoeuvat::getPrefixByCustomer($id_customer);
+							Taxamoeuvat::updateCCPrefix($id_customer, $iso_country_residence, $cc_prefix, null);
 						}
 					}
 				}
@@ -873,14 +873,14 @@ class Tools extends ToolsCore
 					$exists_comments = false;
 					$res_process['comment'] = '';
 
-					$buyer_credit_card_prefix = TaxamoCCPrefix::getPrefixByCustomer($id_customer);
+					$buyer_credit_card_prefix = Taxamoeuvat::getPrefixByCustomer($id_customer);
 
 					if (is_null($buyer_credit_card_prefix) || empty($buyer_credit_card_prefix))
 						$no_buyer_credit_card_prefix = true;
 					else
 						$params_tax_calculate['buyer_credit_card_prefix'] = $buyer_credit_card_prefix;
 
-					$force_country_code = TaxamoCCPrefix::getCountryByCustomer($id_customer);
+					$force_country_code = Taxamoeuvat::getCountryByCustomer($id_customer);
 
 					if (is_null($force_country_code) || empty($force_country_code))
 						$no_force_country_code = true;

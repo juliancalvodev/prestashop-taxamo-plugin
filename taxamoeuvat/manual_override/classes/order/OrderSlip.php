@@ -26,10 +26,10 @@ class OrderSlip extends OrderSlipCore
 	{
 		// start of implementation of the module code - taxamo
 		$reg_taxamo_transaction = null;
-		$last_id_order_transaction = TaxamoTransaction::getLastIdByOrder($this->id_order);
+		$last_id_order_transaction = Taxamoeuvat::getLastIdByOrder($this->id_order);
 
 		if (!is_null($last_id_order_transaction))
-			$reg_taxamo_transaction = TaxamoTransaction::idExists((int)$last_id_order_transaction);
+			$reg_taxamo_transaction = Taxamoeuvat::idExistsTransaction((int)$last_id_order_transaction);
 		// end of code implementation module - taxamo
 
 		foreach ($order_detail_list as $key => $id_order_detail)
@@ -70,10 +70,10 @@ class OrderSlip extends OrderSlipCore
 	{
 		// start of implementation of the module code - taxamo
 		$reg_taxamo_transaction = null;
-		$last_id_order_transaction = TaxamoTransaction::getLastIdByOrder($this->id_order);
+		$last_id_order_transaction = Taxamoeuvat::getLastIdByOrder($this->id_order);
 
 		if (!is_null($last_id_order_transaction))
-			$reg_taxamo_transaction = TaxamoTransaction::idExists((int)$last_id_order_transaction);
+			$reg_taxamo_transaction = Taxamoeuvat::idExistsTransaction((int)$last_id_order_transaction);
 		// end of code implementation module - taxamo
 
 		foreach ($order_detail_list as $id_order_detail => $tab)

@@ -66,12 +66,12 @@ class OrderController extends OrderControllerCore
 					$res_api_verify_sms_token = Tools::taxamoVerifySmsToken($token_taxamo);
 
 					if (isset($res_api_verify_sms_token['country_code']) && $res_api_verify_sms_token['country_code'] == $iso_country_code)
-						TaxamoCCPrefix::updateCCPrefix((int)$this->context->cart->id_customer, null, null, $token_taxamo);
+						Taxamoeuvat::updateCCPrefix((int)$this->context->cart->id_customer, null, null, $token_taxamo);
 					else
 					{
-						$iso_country_residence = TaxamoCCPrefix::getCountryByCustomer((int)$this->context->cart->id_customer);
-						$cc_prefix = TaxamoCCPrefix::getPrefixByCustomer((int)$this->context->cart->id_customer);
-						TaxamoCCPrefix::updateCCPrefix((int)$this->context->cart->id_customer, $iso_country_residence, $cc_prefix, null);
+						$iso_country_residence = Taxamoeuvat::getCountryByCustomer((int)$this->context->cart->id_customer);
+						$cc_prefix = Taxamoeuvat::getPrefixByCustomer((int)$this->context->cart->id_customer);
+						Taxamoeuvat::updateCCPrefix((int)$this->context->cart->id_customer, $iso_country_residence, $cc_prefix, null);
 					}
 				}
 			}

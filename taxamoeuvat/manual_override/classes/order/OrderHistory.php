@@ -34,7 +34,7 @@ class OrderHistory extends OrderHistoryCore
 
 		// start of implementation of the module code - taxamo
 		$operation = null;
-		$list_orderstateoperation = TaxamoOrderStateOperation::getListValues();
+		$list_orderstateoperation = Taxamoeuvat::getListValues();
 
 		foreach ($list_orderstateoperation as $orderstateoperation)
 		{
@@ -46,7 +46,7 @@ class OrderHistory extends OrderHistoryCore
 		{
 			if ($operation == 1 || $operation == 2)
 			{
-				$last_id_order_transaction = TaxamoTransaction::getLastIdByOrder($order->id);
+				$last_id_order_transaction = Taxamoeuvat::getLastIdByOrder($order->id);
 
 				if (is_null($last_id_order_transaction))
 				{
@@ -60,14 +60,14 @@ class OrderHistory extends OrderHistoryCore
 					else
 						$res_process_store_transaction['comment'] .= '* Transaccion ADICIONADA';
 
-					TaxamoTransaction::addTransaction($order->id, $order->current_state,
+					Taxamoeuvat::addTransaction($order->id, $order->current_state,
 						$res_process_store_transaction['key_transaction'],
 						$res_process_store_transaction['comment']);
 				}
 				else
 				{
 					$reg_taxamo_transaction = null;
-					$reg_taxamo_transaction = TaxamoTransaction::idExists((int)$last_id_order_transaction);
+					$reg_taxamo_transaction = Taxamoeuvat::idExistsTransaction((int)$last_id_order_transaction);
 					$res_process_store_transaction['key_transaction'] = $reg_taxamo_transaction[0]['key_transaction'];
 					$res_process_store_transaction['comment'] = '';
 				}
@@ -92,7 +92,7 @@ class OrderHistory extends OrderHistoryCore
 						}
 					}
 
-					TaxamoTransaction::addTransaction($order->id,
+					Taxamoeuvat::addTransaction($order->id,
 						$order->current_state,
 						$res_process_store_transaction['key_transaction'],
 						$res_process_store_transaction['comment']);

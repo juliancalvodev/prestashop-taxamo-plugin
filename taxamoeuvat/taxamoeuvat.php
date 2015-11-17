@@ -26,8 +26,6 @@ if (!defined('_PS_VERSION_'))
 if (!defined('_CAN_LOAD_FILES_'))
 	exit;
 
-include_once(dirname(__FILE__).'/manual_override/classes/TaxamoOrderStateOperation.php');
-
 class Taxamoeuvat extends Module
 {
 	private $_html = '';
@@ -265,7 +263,7 @@ class Taxamoeuvat extends Module
 			$id_taxamo_orderstateoperation = Tools::getValue('id_taxamo_orderstateoperation');
 			if ($id_taxamo_orderstateoperation)
 			{
-				if (!TaxamoOrderStateOperation::idExists($id_taxamo_orderstateoperation))
+				if (!self::idExistsOrderStateOperation($id_taxamo_orderstateoperation))
 					$errors[] = $this->displayError($this->l('Taxamo id_taxamo_orderstateoperation does not exists.'));
 			}
 
@@ -277,9 +275,9 @@ class Taxamoeuvat extends Module
 				/* Adds */
 				if (!$id_taxamo_orderstateoperation)
 				{
-					if (!TaxamoOrderStateOperation::orderStateExists($id_order_state))
+					if (!self::orderStateExists($id_order_state))
 					{
-						if (!TaxamoOrderStateOperation::addOrderStateOperation($id_order_state, $operation))
+						if (!self::addOrderStateOperation($id_order_state, $operation))
 							$errors[] = $this->displayError($this->l('The order state could not be added.'));
 					}
 					else
@@ -288,9 +286,9 @@ class Taxamoeuvat extends Module
 				/* Update */
 				else
 				{
-					if (TaxamoOrderStateOperation::orderStateExists($id_order_state))
+					if (self::orderStateExists($id_order_state))
 					{
-						if (!TaxamoOrderStateOperation::updateOrderStateOperation($id_order_state, $operation))
+						if (!self::updateOrderStateOperation($id_order_state, $operation))
 							$errors[] = $this->displayError($this->l('The order state could not be updated.'));
 					}
 					else
@@ -301,9 +299,9 @@ class Taxamoeuvat extends Module
 		elseif (Tools::isSubmit('delete_id_taxamo_orderstateoperation'))
 		{
 			$delete_id_taxamo_orderstateoperation = Tools::getValue('delete_id_taxamo_orderstateoperation');
-			if (TaxamoOrderStateOperation::idExists($delete_id_taxamo_orderstateoperation))
+			if (self::idExistsOrderStateOperation($delete_id_taxamo_orderstateoperation))
 			{
-				if (!TaxamoOrderStateOperation::deleteOrderStateOperation($delete_id_taxamo_orderstateoperation))
+				if (!self::deleteOrderStateOperation($delete_id_taxamo_orderstateoperation))
 					$errors[] = $this->displayError($this->l('The product could not be deleted.'));
 			}
 			else
@@ -645,7 +643,7 @@ class Taxamoeuvat extends Module
 	public function renderList()
 	{
 		$statuses = OrderState::getOrderStates((int)$this->context->language->id);
-		$list_orderstateoperation = TaxamoOrderStateOperation::getListValues();
+		$list_orderstateoperation = self::getListValues();
 		$q_orderstateoperation = 0;
 
 		foreach ($list_orderstateoperation as $key => $orderstateoperation)
@@ -706,7 +704,7 @@ class Taxamoeuvat extends Module
 		);
 
 		if (Tools::isSubmit('edit_id_taxamo_orderstateoperation')
-			&& TaxamoOrderStateOperation::idExists((int)Tools::getValue('edit_id_taxamo_orderstateoperation')))
+			&& self::idExistsOrderStateOperation((int)Tools::getValue('edit_id_taxamo_orderstateoperation')))
 		{
 			$fields_form['form']['input'][] = array(
 				'type' => 'hidden',
@@ -792,7 +790,7 @@ class Taxamoeuvat extends Module
 
 		if (Tools::isSubmit('edit_id_taxamo_orderstateoperation'))
 		{
-			$row = TaxamoOrderStateOperation::idExists((int)Tools::getValue('edit_id_taxamo_orderstateoperation'));
+			$row = self::idExistsOrderStateOperation((int)Tools::getValue('edit_id_taxamo_orderstateoperation'));
 
 			if ($row)
 			{
@@ -820,7 +818,7 @@ class Taxamoeuvat extends Module
 	public function hookDisplayAdminOrder($params)
 	{
 		$statuses = OrderState::getOrderStates((int)$this->context->language->id);
-		$list_history_transactions = TaxamoTransaction::getHistoryTransactions($params['id_order']);
+		$list_history_transactions = self::getHistoryTransactions($params['id_order']);
 		$q_history_transactions = 0;
 
 		foreach ($list_history_transactions as $key => $history_transaction)
@@ -846,4 +844,266 @@ class Taxamoeuvat extends Module
 
 		return $this->display(__FILE__, 'views/templates/admin/info_taxamo.tpl');
 	}
+
+	public static function addCCPrefix($id_customer, $iso_country_residence, $cc_prefix, $token)
+	{
+		if (!is_null($id_customer))
+		{
+			if ((is_null($iso_country_residence) || empty($iso_country_residence)) && (is_null($cc_prefix) || empty($cc_prefix)))
+			{
+				if ($token)
+				{
+					Db::getInstance()->execute('
+							INSERT INTO `'._DB_PREFIX_.'taxamo_ccprefix` (`id_customer`, `iso_country_residence`, `cc_prefix`, `token`)
+							VALUES('.$id_customer.", NULL, NULL,  '".$token."')"
+					);
+				}
+				else
+				{
+					Db::getInstance()->execute('
+						INSERT INTO `'._DB_PREFIX_.'taxamo_ccprefix` (`id_customer`, `iso_country_residence`, `cc_prefix`, `token`)
+						VALUES('.$id_customer.', NULL, NULL, NULL)'
+					);
+				}
+			}
+			elseif (is_null($iso_country_residence) || empty($iso_country_residence))
+			{
+				Db::getInstance()->execute('
+					INSERT INTO `'._DB_PREFIX_.'taxamo_ccprefix` (`id_customer`, `iso_country_residence`, `cc_prefix`, `token`)
+					VALUES('.$id_customer.', NULL, '.$cc_prefix.', NULL)'
+				);
+			}
+			elseif (is_null($cc_prefix) || empty($cc_prefix))
+			{
+				Db::getInstance()->execute('
+					INSERT INTO `'._DB_PREFIX_.'taxamo_ccprefix` (`id_customer`, `iso_country_residence`, `cc_prefix`, `token`)
+					VALUES('.$id_customer.", '".$iso_country_residence."', NULL, NULL)"
+				);
+			}
+			else
+			{
+				Db::getInstance()->execute('
+					INSERT INTO `'._DB_PREFIX_.'taxamo_ccprefix` (`id_customer`, `iso_country_residence`, `cc_prefix`, `token`)
+					VALUES('.$id_customer.", '".$iso_country_residence."', ".$cc_prefix.', NULL)'
+				);
+			}
+		}
+	}
+
+	public static function getIdByCustomer($id_customer)
+	{
+		return Db::getInstance()->getValue('
+			SELECT `id_taxamo_ccprefix` FROM `'._DB_PREFIX_.'taxamo_ccprefix`
+			WHERE `id_customer` = '.$id_customer
+		);
+	}
+
+	public static function updateCCPrefix($id_customer, $iso_country_residence, $cc_prefix, $token = null)
+	{
+		if (!is_null($id_customer))
+		{
+			if ($id_taxamo_ccprefix = self::getIdByCustomer($id_customer))
+			{
+				if ((is_null($iso_country_residence) || empty($iso_country_residence)) && (is_null($cc_prefix) || empty($cc_prefix)))
+				{
+					if ($token)
+					{
+						Db::getInstance()->execute('
+							UPDATE `'._DB_PREFIX_."taxamo_ccprefix` SET `token` = '".$token."'
+							WHERE `id_taxamo_ccprefix` = ".$id_taxamo_ccprefix
+						);
+					}
+					else
+					{
+						Db::getInstance()->execute('
+							UPDATE `'._DB_PREFIX_.'taxamo_ccprefix` SET `iso_country_residence` = NULL, `cc_prefix` = NULL, `token` = NULL
+							WHERE `id_taxamo_ccprefix` = '.$id_taxamo_ccprefix
+						);
+					}
+				}
+				elseif (is_null($iso_country_residence) || empty($iso_country_residence))
+				{
+					Db::getInstance()->execute('
+						UPDATE `'._DB_PREFIX_.'taxamo_ccprefix` SET `iso_country_residence` = NULL, `cc_prefix` = '.$cc_prefix.', `cc_prefix` = NULL
+						WHERE `id_taxamo_ccprefix` = '.$id_taxamo_ccprefix
+					);
+				}
+				elseif (is_null($cc_prefix) || empty($cc_prefix))
+				{
+					Db::getInstance()->execute('
+						UPDATE `'._DB_PREFIX_."taxamo_ccprefix` SET `iso_country_residence` = '".$iso_country_residence."', `cc_prefix` = NULL, `cc_prefix` = NULL
+						WHERE `id_taxamo_ccprefix` = ".$id_taxamo_ccprefix
+					);
+				}
+				else
+				{
+					Db::getInstance()->execute('
+						UPDATE `'._DB_PREFIX_
+						."taxamo_ccprefix` SET `iso_country_residence` = '".$iso_country_residence
+						."', `cc_prefix` = ".$cc_prefix
+						.', `cc_prefix` = NULL WHERE `id_taxamo_ccprefix` = '.$id_taxamo_ccprefix
+					);
+				}
+			}
+			else
+				self::addCCPrefix($id_customer, $iso_country_residence, $cc_prefix, $token);
+		}
+	}
+
+	public static function deleteCCPrefix($id_customer)
+	{
+		if (!is_null($id_customer))
+		{
+			Db::getInstance()->execute('
+				DELETE FROM `'._DB_PREFIX_.'taxamo_ccprefix` WHERE `id_customer` = '.$id_customer
+			);
+		}
+	}
+
+	public static function getPrefixByCustomer($id_customer)
+	{
+		if (!is_null($id_customer))
+		{
+			return Db::getInstance()->getValue('
+				SELECT `cc_prefix` FROM `'._DB_PREFIX_.'taxamo_ccprefix`
+				WHERE `id_customer` = '.$id_customer
+			);
+		}
+		else
+			return null;
+	}
+
+	public static function getCountryByCustomer($id_customer)
+	{
+		if (!is_null($id_customer))
+		{
+			return Db::getInstance()->getValue('
+				SELECT `iso_country_residence` FROM `'._DB_PREFIX_.'taxamo_ccprefix`
+				WHERE `id_customer` = '.$id_customer
+			);
+		}
+		else
+			return null;
+	}
+
+	public static function getTokenByCustomer($id_customer)
+	{
+		if (!is_null($id_customer))
+		{
+			return Db::getInstance()->getValue('
+				SELECT `token` FROM `'._DB_PREFIX_.'taxamo_ccprefix`
+				WHERE `id_customer` = '.$id_customer
+			);
+		}
+		else
+			return null;
+	}
+
+	public static function getListValues()
+	{
+		$query = new DbQuery();
+		$query->select('id_taxamo_orderstateoperation');
+		$query->select('id_order_state');
+		$query->select('operation');
+		$query->from('taxamo_orderstateoperation');
+
+		return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($query);
+	}
+
+	public static function idExistsOrderStateOperation($id_taxamo_orderstateoperation)
+	{
+		$query = new DbQuery();
+		$query->select('id_taxamo_orderstateoperation');
+		$query->select('id_order_state');
+		$query->select('operation');
+		$query->from('taxamo_orderstateoperation');
+		$query->where('id_taxamo_orderstateoperation = '.$id_taxamo_orderstateoperation);
+
+		return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($query);
+	}
+
+	public static function orderStateExists($id_order_state)
+	{
+		$query = new DbQuery();
+		$query->select('id_taxamo_orderstateoperation');
+		$query->select('id_order_state');
+		$query->select('operation');
+		$query->from('taxamo_orderstateoperation');
+		$query->where('id_order_state = '.$id_order_state);
+
+		return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($query);
+	}
+
+	public static function addOrderStateOperation($id_order_state, $operation)
+	{
+		return Db::getInstance()->execute('
+			INSERT INTO `'._DB_PREFIX_.'taxamo_orderstateoperation` (`id_order_state`, `operation`)
+			VALUES('.$id_order_state.', '.$operation.')'
+		);
+	}
+
+	public static function updateOrderStateOperation($id_order_state, $operation)
+	{
+		return Db::getInstance()->execute('
+			UPDATE `'._DB_PREFIX_.'taxamo_orderstateoperation` SET `operation` = '.$operation.'
+			WHERE `id_order_state` = '.$id_order_state
+		);
+	}
+
+	public static function deleteOrderStateOperation($id_taxamo_orderstateoperation)
+	{
+		return Db::getInstance()->execute('
+			DELETE FROM `'._DB_PREFIX_.'taxamo_orderstateoperation` WHERE `id_taxamo_orderstateoperation` = '.$id_taxamo_orderstateoperation
+		);
+	}
+
+	public static function addTransaction($id_order, $id_order_state, $key_transaction, $comment = null)
+	{
+		if (!is_null($id_order) && !is_null($id_order_state))
+		{
+			Db::getInstance()->execute('
+				INSERT INTO `'._DB_PREFIX_.'taxamo_transaction` (`id_order`, `id_order_state`, `key_transaction`, `comment`)
+				VALUES('.$id_order.', '.$id_order_state.", '".$key_transaction."', '".$comment."')"
+			);
+		}
+	}
+
+	public static function getLastIdByOrder($id_order)
+	{
+		$sql = 'SELECT MAX(`id_taxamo_transaction`)
+				FROM `'._DB_PREFIX_.'taxamo_transaction`
+				WHERE id_order = '.(int)$id_order;
+
+		$id_taxamo_transaction = DB::getInstance()->getValue($sql);
+
+		return (is_numeric($id_taxamo_transaction)) ? $id_taxamo_transaction : null;
+	}
+
+	public static function idExistsTransaction($id_taxamo_transaction)
+	{
+		$query = new DbQuery();
+		$query->select('id_taxamo_transaction');
+		$query->select('id_order');
+		$query->select('id_order_state');
+		$query->select('key_transaction');
+		$query->select('comment');
+		$query->from('taxamo_transaction');
+		$query->where('id_taxamo_transaction = '.$id_taxamo_transaction);
+
+		return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($query);
+	}
+
+	public static function getHistoryTransactions($id_order)
+	{
+		$query = new DbQuery();
+		$query->select('id_order_state');
+		$query->select('key_transaction');
+		$query->select('comment');
+		$query->from('taxamo_transaction');
+		$query->where('id_order = '.$id_order);
+		$query->orderBy('id_taxamo_transaction DESC');
+
+		return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($query);
+	}
+
 }

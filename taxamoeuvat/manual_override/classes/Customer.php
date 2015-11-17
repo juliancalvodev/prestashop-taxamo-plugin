@@ -52,7 +52,7 @@ class Customer extends CustomerCore
 			$taxamo_iso_country_residence = Tools::getValue('taxamoisocountryresidence');
 			$taxamo_cc_prefix = Tools::getValue('taxamoccprefix');
 
-			TaxamoCCPrefix::addCCPrefix($this->id, $taxamo_iso_country_residence, $taxamo_cc_prefix);
+			Taxamoeuvat::addCCPrefix($this->id, $taxamo_iso_country_residence, $taxamo_cc_prefix);
 		}
 		// end of code implementation module - taxamo
 
@@ -82,7 +82,7 @@ class Customer extends CustomerCore
 		$taxamo_iso_country_residence = Tools::getValue('taxamoisocountryresidence');
 		$taxamo_cc_prefix = Tools::getValue('taxamoccprefix');
 
-		TaxamoCCPrefix::updateCCPrefix($this->id, $taxamo_iso_country_residence, $taxamo_cc_prefix);
+		Taxamoeuvat::updateCCPrefix($this->id, $taxamo_iso_country_residence, $taxamo_cc_prefix);
 		// end of code implementation module - taxamo
 
 		return parent::update(true);
@@ -129,7 +129,7 @@ class Customer extends CustomerCore
 		CartRule::deleteByIdCustomer((int)$this->id);
 
 		// start of implementation of the module code - taxamo
-		TaxamoCCPrefix::deleteCCPrefix($this->id);
+		Taxamoeuvat::deleteCCPrefix($this->id);
 		// end of code implementation module - taxamo
 
 		return parent::delete();

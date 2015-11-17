@@ -55,7 +55,7 @@ class IdentityController extends IdentityControllerCore
 		if (Tools::isSubmit('taxamoisocountryresidence') && !is_null(Tools::getValue('taxamoisocountryresidence')))
 			$selected_country = Tools::getValue('taxamoisocountryresidence');
 		else
-			$selected_country = TaxamoCCPrefix::getCountryByCustomer($this->customer->id);
+			$selected_country = Taxamoeuvat::getCountryByCustomer($this->customer->id);
 
 		// Generate countries list
 		if (Configuration::get('PS_RESTRICT_DELIVERED_COUNTRIES'))
@@ -75,7 +75,7 @@ class IdentityController extends IdentityControllerCore
 		if (Tools::isSubmit('taxamoccprefix') && !is_null(Tools::getValue('taxamoccprefix')))
 			$taxamo_cc_prefix = Tools::getValue('taxamoccprefix');
 		else
-			$taxamo_cc_prefix = TaxamoCCPrefix::getPrefixByCustomer($this->customer->id);
+			$taxamo_cc_prefix = Taxamoeuvat::getPrefixByCustomer($this->customer->id);
 
 		if ($this->customer->id)
 		{
