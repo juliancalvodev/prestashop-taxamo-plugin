@@ -34,7 +34,7 @@ class Taxamoeuvat extends Module
 	{
 		$this->name = 'taxamoeuvat';
 		$this->tab = 'billing_invoicing';
-		$this->version = '1.1.10';
+		$this->version = '1.2.1';
 		$this->author = 'Taxamo';
 		$this->module_key = 'a742d881752030853d3985b6c3c96a38';
 		$this->need_instance = 0;
